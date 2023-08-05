@@ -1,0 +1,46 @@
+[
+  {
+    "id": 2,
+    "status": true,
+    "thumbnails": "imagen.jpg",
+    "title": "producto1",
+    "description": "this is a pencil",
+    "price": 250,
+    "code": "1850",
+    "stock": 10
+  },
+  {
+    "id": 3,
+    "status": true,
+    "thumbnails": [
+      "imagen.jpg"
+    ],
+    "title": "producto2",
+    "description": "this is a stencil",
+    "price": 200,
+    "code": "1500",
+    "stock": 5
+  },
+  {
+    "id": 4,
+    "status": true,
+    "thumbnails": [
+      "imagen.jpg"
+    ],
+    "title": "producto3",
+    "description": "this is a pen",
+    "price": 200,
+    "code": "1800",
+    "stock": 5
+  },
+  {
+    "id": 5,
+    "status": true,
+    "thumbnails": "imagen.jpg",
+    "title": "producto3",
+    "description": "this is a keyboard",
+    "price": 550,
+    "code": "9900",
+    "stock": 11
+  }
+]
