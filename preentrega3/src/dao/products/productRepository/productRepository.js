@@ -1,3 +1,5 @@
+const productModel = require('../../../dao/models/product.model');
+
 class ProductRepository {
   async getProducts() {
     try {
@@ -25,9 +27,7 @@ class ProductRepository {
       if (await this.isValidateCode(product.code)) {
         return 'Este producto ya existe!';
       } else {
-        const id = ++ProductManager.id;
         const newProduct = {
-          id,
           status: true,
           thumbnails: [],
           ...product,
