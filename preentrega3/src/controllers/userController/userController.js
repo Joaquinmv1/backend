@@ -1,13 +1,16 @@
+const UserRepository = require('../../dao/users/userRepository/userRepository');
+const querystring = require('querystring');
+const userRepository = new UserRepository();
 const passport = require('passport');
 
-class ProductsController {
+class UserController {
   async register(req, res) {
     try {
       if (!req.user) return res.status(401).send({ message: 'Invalid User' });
 
       const token = req.user.token;
       res.cookie('coderToken', token);
-      res.send({ status: "OK", message: 'usuario registrado' });
+      res.send({ status: 'OK', message: 'Usuario registrado' });
 
     } catch (error) {
       res.status(500).json({ error: 'Error al registrarse!' });
@@ -20,7 +23,7 @@ class ProductsController {
 
       const token = req.user.token;
       res.cookie('coderToken', token);
-      res.send({ status: 200, message: 'usuario registrado' });
+      res.send({ status: 200, message: 'Usuario registrado' });
     } catch (error) {
       res.status(404).json({ error: 'El usuario ingresado no existe' })
     }
@@ -29,23 +32,23 @@ class ProductsController {
   async githubCallBack(req, res) {
     req.session.user = req.user;
     req.session.loggedIn = true;
-    res.redirect("/products");
+    res.redirect('/products');
   }
 
   async authenticateRegister(req, res, next) {
-    passport.authenticate("register", { failureRedirect: "/failregister" })(req, res, next);
+    passport.authenticate('register', { failureRedirect: '/failregister' })(req, res, next);
   }
 
   async authenticateLogin(req, res, next) {
-    passport.authenticate("login", { failureRedirect: "/faillogin" })(req, res, next);
+    passport.authenticate('login', { failureRedirect: '/faillogin' })(req, res, next);
   }
 
   githubAuthenticate(req, res, next) {
-    passport.authenticate("github", { scope: ["user:email"] })(req, res, next);
+    passport.authenticate('github', { scope: ['user:email'] })(req, res, next);
   }
 
   githubCallbackAuthenticate(req, res, next) {
-    passport.authenticate("github", { failureRedirect: "/login" })(req, res, next);
+    passport.authenticate('github', { failureRedirect: '/login' })(req, res, next);
   }
 
   current(req, res) {
@@ -77,16 +80,9 @@ class ProductsController {
         res.redirect('/');
       });
     } catch (error) {
-      res.status(500).json({ error: 'La sesion no ha podido destruirse' })
+      res.status(500).json({ error: 'La sesión no ha podido destruirse' })
     }
-
   }
 }
 
-module.exports = new ProductsController();
-
-
-
-
-
-
+module.exports = new UserController();

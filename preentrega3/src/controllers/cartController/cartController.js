@@ -1,22 +1,20 @@
-const CartService = require('../../dao/cart/cartService/cartService');
+const CartRepository = require('../../dao/cart/cartRepository/cartRepository');
+const querystring = require('querystring');
 
 class CartController {
   async getAllCarts(req, res) {
     try {
-      const carts = await CartService.getAllCarts();
-
-      res.json(carts)
+      const carts = await CartRepository.getAllCarts();
+      res.json(carts);
     } catch (error) {
       res.status(500).send('Error al obtener los carritos.');
     }
   }
-  
+
   async createCart(req, res) {
     try {
       const { products } = req.body;
-
-      const newCart = await CartService.createCart(products);
-
+      const newCart = await CartRepository.createCart();
       res.json(newCart);
     } catch (error) {
       res.status(500).json({ error: 'Error al crear carrito' });
@@ -25,10 +23,8 @@ class CartController {
 
   async products(req, res) {
     try {
-      const cartId = parseInt(req.params.cid);
-
-      const products = await CartService.getProducts(cartId);
-
+      const cartId = req.params.cid;
+      const products = await CartRepository.getProducts(cartId);
       res.json(products);
     } catch (error) {
       res.status(404).json({ message: error.message });
@@ -37,10 +33,9 @@ class CartController {
 
   async addProduct(req, res) {
     try {
-      const cartId = parseInt(req.params.cid);
+      const cartId = req.params.cid;
       const productId = req.params.pid;
-
-      const cart = await CartService.addProduct(cartId, productId);
+      const cart = await CartRepository.addProduct(cartId, productId);
 
       if (cart) {
         res.status(200).json({ message: 'Producto subido exitosamente!' });
@@ -54,11 +49,9 @@ class CartController {
 
   async deleteProductFromCart(req, res) {
     try {
-      const cartId = parseInt(req.params.cid);
-      const productId = parseInt(req.params.pid);
-
-      await CartService.deleteProduct(cartId, productId);
-
+      const cartId = req.params.cid;
+      const productId = req.params.pid;
+      await CartRepository.deleteProduct(cartId, productId);
       res.status(200).json({ message: 'Producto eliminado exitosamente' });
     } catch (error) {
       res.status(500).json({ error: 'Error al eliminar el producto' });
@@ -67,23 +60,19 @@ class CartController {
 
   async deleteProductsFromCart(req, res) {
     try {
-      const cartId = parseInt(req.params.cid);
-
-      await CartService.deleteProductsFromCart(cartId);
-
-      res.status(200).json({ message: 'Productos eliminado exitosamente' });
+      const cartId = req.params.cid;
+      await CartRepository.deleteProductsFromCart(cartId);
+      res.status(200).json({ message: 'Productos eliminados exitosamente' });
     } catch (error) {
-      res.status(500).json({ error: 'Error al eliminar el producto' });
+      res.status(500).json({ error: 'Error al eliminar los productos' });
     }
   }
 
   async updateProductsInCart(req, res) {
     try {
-      const cartId = parseInt(req.params.cid);
+      const cartId = req.params.cid;
       const { newProducts } = req.body;
-
-      const cart = await CartService.updateProducts(cartId, newProducts);
-
+      const cart = await CartRepository.updateProducts(cartId, newProducts);
       const totalPages = 1;
       const prevPage = null;
       const nextPage = null;
@@ -114,21 +103,18 @@ class CartController {
 
   async updateProductsQuantity(req, res) {
     try {
-      const cartId = parseInt(req.params.cid);
-      const productId = parseInt(req.params.pid);
+      const cartId = req.params.cid;
+      const productId = req.params.pid;
       const { quantity } = req.body;
-
-      const cart = await CartService.updateProductsQuantity(cartId, productId, quantity);
-
+      const cart = await CartRepository.updateProductsQuantity(cartId, productId, quantity);
       res.status(200).json({ message: 'Cantidad de producto actualizada exitosamente', cart });
     } catch (error) {
       res.status(500).json({ error: `${error}` });
     }
   }
 
-
-  async checkout (req, res) {
-    
+  async purchase(req, res) {
+   
   }
 }
 

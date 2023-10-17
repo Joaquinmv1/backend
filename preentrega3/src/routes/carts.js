@@ -18,6 +18,6 @@ module.exports = app => {
     router.delete('/:cid', cartsController.deleteProductsFromCart)
     router.put('/:cid/products/:pid', cartsController.updateProductsQuantity)
     router.put('/:cid', cartsController.updateProductsInCart);
-    router.put('/:cid/purchase', cartsController.checkout);
+    router.put('/:cid/purchase', cartsController.purchase);
 }
 

@@ -1,5 +1,5 @@
-const productManager = require('../../dao/products/productsService/productManager');
-const querystring = require('querystring');
+const ProductRepository = require('../../dao/products/productRepository/productRepository');
+const productRepository = new ProductRepository();
 
 class ProductsController {
   async getProducts(req, res) {
@@ -15,12 +15,12 @@ class ProductsController {
         { $match: query },
         { $sort: { price: sort } },
         { $skip: skip },
-        { $limit: limit }
+        { $limit: limit },
       ];
 
       const [products, totalProducts] = await Promise.all([
-        productManager.aggregateProducts(aggregationPipeline),
-        productManager.countProducts(query)
+        productRepository.aggregateProducts(aggregationPipeline),
+        productRepository.countProducts(query),
       ]);
 
       const totalPages = Math.ceil(totalProducts / limit);
@@ -28,8 +28,6 @@ class ProductsController {
       const hasNextPage = page < totalPages;
       const prevPage = hasPrevPage ? page - 1 : null;
       const nextPage = hasNextPage ? page + 1 : null;
-
-      const queryString = querystring.stringify(query);
 
       const response = {
         status: 'success',
@@ -40,8 +38,16 @@ class ProductsController {
         page,
         hasPrevPage,
         hasNextPage,
-        prevLink: hasPrevPage ? `${req.baseUrl}?limit=${limit}&page=${prevPage}&sort=${sort}&query=${queryString}` : null,
-        nextLink: hasNextPage ? `${req.baseUrl}?limit=${limit}&page=${nextPage}&sort=${sort}&query=${queryString}` : null
+        prevLink: hasPrevPage
+          ? `${req.baseUrl}?limit=${limit}&page=${prevPage}&sort=${sort}&query=${querystring.stringify(
+              query
+            )}`
+          : null,
+        nextLink: hasNextPage
+          ? `${req.baseUrl}?limit=${limit}&page=${nextPage}&sort=${sort}&query=${querystring.stringify(
+              query
+            )}`
+          : null,
       };
 
       res.json(response);
@@ -53,7 +59,7 @@ class ProductsController {
   async getProductById(req, res) {
     try {
       const productId = parseInt(req.params.pid);
-      const product = await productManager.getProductById(productId);
+      const product = await productRepository.getProductById(productId);
 
       if (product) {
         res.json(product);
@@ -69,7 +75,7 @@ class ProductsController {
     try {
       const productData = req.body;
 
-      const newProduct = await productManager.addProduct(productData);
+      const newProduct = await productRepository.addProduct(productData);
       if (newProduct == 'Producto invalido!') {
         res.status(400).json({ error: 'Producto invalido' });
       } else {
@@ -89,15 +95,14 @@ class ProductsController {
         return res.status(400).json({ error: 'Se debe enviar al menos un campo para actualizar' });
       }
 
-      const existingProduct = await productManager.getProductById(productId);
+      const existingProduct = await productRepository.getProductById(productId);
       if (!existingProduct) {
         return res.status(404).json({ error: 'Producto no encontrado' });
       }
 
-      const updatedIt = await productManager.updateProduct(productId, product);
+      const updatedProduct = await productRepository.updateProduct(productId, product);
 
-      res.json(updatedIt)
-
+      res.json(updatedProduct);
     } catch (error) {
       res.status(500).json({ error: 'Error al actualizar el producto' });
     }
@@ -107,12 +112,12 @@ class ProductsController {
     try {
       const productId = parseInt(req.params.pid);
 
-      const existingProduct = await productManager.getProductById(productId);
+      const existingProduct = await productRepository.getProductById(productId);
       if (!existingProduct) {
         return res.status(404).json({ error: 'Producto no encontrado' });
       }
 
-      await productManager.deleteProduct(productId);
+      await productRepository.deleteProduct(productId);
 
       res.status(204).end();
     } catch (error) {
@@ -122,9 +127,3 @@ class ProductsController {
 }
 
 module.exports = new ProductsController();
-
-
-
-
-
-

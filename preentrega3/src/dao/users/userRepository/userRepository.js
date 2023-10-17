@@ -1,10 +1,6 @@
 const userModel = require('../../models/user.model');
 
-class UserManager {
-  constructor() {
-    this.userLogged = null;
-  }
-
+class UserRepository {
   async addUser(user) {
     try {
       const existingUser = await userModel.findOne({ email: user.email });
@@ -26,20 +22,20 @@ class UserManager {
 
   async login(username, password) {
     try {
-      this.userLogged = await userModel.findOne({ email: username, password: password }) || null;
+      const userLogged = await userModel.findOne({ email: username, password: password }) || null;
 
-      if (this.userLogged) {
-        console.log('user logged!');
+      if (userLogged) {
+        console.log('Usuario autenticado!');
 
         if (username === 'adminCoder@coder.com' && password === 'adminCod3r123') {
-          this.userLogged.role = 'admin';
+          userLogged.role = 'admin';
         } else {
-          this.userLogged.role = 'user';
+          userLogged.role = 'user';
         }
 
-        await this.userLogged.save();
+        await userLogged.save();
 
-        return this.userLogged;
+        return userLogged;
       }
 
       return null;
@@ -50,6 +46,4 @@ class UserManager {
   }
 }
 
-const userManager = new UserManager();
-
-module.exports = userManager;
+module.exports = UserRepository;
