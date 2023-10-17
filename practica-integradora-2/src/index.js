@@ -77,8 +77,7 @@ class Server {
       socket.on("message", async (data) => {
         this.messages.push({ usuario: data.usuario, foto: data.foto, mensaje: data.mensaje });
         socket.emit("messages", this.messages);
-
-        // Save the message to the database using Mongoose
+        
         const newMessage = new messageModel({
           user: data.usuario,
           message: data.mensaje
