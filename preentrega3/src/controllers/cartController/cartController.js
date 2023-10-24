@@ -13,7 +13,6 @@ class CartController {
 
   async createCart(req, res) {
     try {
-      const { products } = req.body;
       const newCart = await CartRepository.createCart();
       res.json(newCart);
     } catch (error) {
@@ -21,10 +20,11 @@ class CartController {
     }
   }
 
-  async products(req, res) {
+  async getCart(req, res) {
     try {
-      const cartId = req.params.cid;
-      const products = await CartRepository.getProducts(cartId);
+      const cartId = req.user.cart.id;
+      console.log(cartId);
+      const products = await CartRepository.getCart(cartId);
       res.json(products);
     } catch (error) {
       res.status(404).json({ message: error.message });
@@ -33,16 +33,15 @@ class CartController {
 
   async addProduct(req, res) {
     try {
-      const cartId = req.params.cid;
-      const productId = req.params.pid;
-      const cart = await CartRepository.addProduct(cartId, productId);
+      const cartId = req.user?.user.cart._id;
+      const productId = req.body.id;
+      const cart = await CartRepository.addProductToCart(cartId, productId);
 
-      if (cart) {
-        res.status(200).json({ message: 'Producto subido exitosamente!' });
-      } else {
-        res.status(500).json({ error: 'Error al subir el producto' });
-      }
+      if (cart) res.status(200).json({ message: 'Producto subido exitosamente!' });
+      else res.status(500).json({ error: 'Error al subir el producto' });
+
     } catch (error) {
+      console.log('error uwu');
       res.status(404).json({ message: error.message });
     }
   }
@@ -64,7 +63,7 @@ class CartController {
       await CartRepository.deleteProductsFromCart(cartId);
       res.status(200).json({ message: 'Productos eliminados exitosamente' });
     } catch (error) {
-      res.status(500).json({ error: 'Error al eliminar los productos' });
+      res.status(500).json({ error: error.message });
     }
   }
 
@@ -114,7 +113,31 @@ class CartController {
   }
 
   async purchase(req, res) {
-   
+    try {
+      const cartId = req.params.cid;
+      const cart = await CartRepository.getCartById(cartId);
+
+      if (!cart) {
+        return res.status(404).json({ error: 'Carrito no encontrado' });
+      }
+
+      for (const product of cart.products) {
+        const productInfo = await CartRepository.getProductInfo(product.product);
+        console.log(productInfo)
+        if (product.quantity > productInfo.stock) {
+          return res.status(400).json({ error: `No hay suficiente stock para el producto ${product.product}` });
+        }
+
+        productInfo.stock -= product.quantity;
+        await CartRepository.saveProductInfo(productInfo);
+      }
+
+      await CartRepository.deleteProductsFromCart(cartId);
+
+      res.status(200).json({ message: 'Compra realizada con éxito' });
+    } catch (error) {
+      res.status(500).json({ error: 'Error al procesar la compra' });
+    }
   }
 }
 

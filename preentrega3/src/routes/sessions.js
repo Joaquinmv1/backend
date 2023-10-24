@@ -8,13 +8,12 @@ const MongoStore = require('connect-mongo');
 const cookieParser = require('cookie-parser');
 require('dotenv').config()
 
-
 module.exports = app => {
   app.use(session({
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URL,
       mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-      ttl: 20
+      ttl: 24 * 60 * 60
     }),
     secret: process.env.MONGO_SECRET,
     resave: false,
@@ -31,7 +30,7 @@ module.exports = app => {
 
   app.use('/api/sessions', router);
   app.use("/githubcallback", userController.githubCallbackAuthenticate, userController.githubCallBack)
-
+ 
   router.post("/register", userController.authenticateRegister, userController.register);
   router.post("/login", userController.authenticateLogin, userController.login);
   router.use('/current', userController.current)

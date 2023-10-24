@@ -11,45 +11,39 @@ class CartRepository {
 
   async createCart() {
     try {
-      const newCart = {
-        products: [],
-      };
-
-      return await CartModel.create(newCart);
+      const newCart = await CartModel.create({ products: [] });
+      const cartId = newCart._id;
+      return cartId;
     } catch (error) {
       throw error;
     }
   }
 
-  async getProducts(cartId) {
+  async getCart(cartId) {
     try {
-      const cart = await CartModel.findOne({ _id: cartId }).populate('products.product').lean();
-
+      const cart = await CartModel.findOne({ _id: cartId }).lean();
+      console.log('llegue aca');
+      console.log(cart, 'carrito');
       if (!cart) {
         return [];
       }
 
+      console.log(cart.products, 'vacio?');
       return cart.products;
     } catch (error) {
       throw error;
     }
   }
 
-  async addProduct(cartId, productId) {
+  async addProductToCart(cartId, productId) {
+    console.log('sigo aca?');
     try {
       const cart = await CartModel.findOne({ _id: cartId });
+      if (!cart) throw new Error('Carrito no encontrado');
+      const existingProduct = cart.products.find((product) => product.product._id.toString() === productId);
 
-      if (!cart) {
-        throw new Error('Carrito no encontrado');
-      }
-
-      const existingProduct = cart.products.find((product) => product.product.toString() === productId);
-
-      if (existingProduct) {
-        existingProduct.quantity += 1;
-      } else {
-        cart.products.push({ product: productId, quantity: 1 });
-      }
+      if (existingProduct) existingProduct.quantity += 1;
+      else cart.products.push({ product: productId, quantity: 1 });
 
       await cart.save();
 

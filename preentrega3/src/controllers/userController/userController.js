@@ -9,6 +9,7 @@ class UserController {
       if (!req.user) return res.status(401).send({ message: 'Invalid User' });
 
       const token = req.user.token;
+      console.log(token);
       res.cookie('coderToken', token);
       res.send({ status: 'OK', message: 'Usuario registrado' });
 
@@ -20,7 +21,7 @@ class UserController {
   async login(req, res) {
     try {
       if (!req.user) return res.status(401).send({ message: 'Invalid User' });
-
+      console.log(req.user, 'existo');
       const token = req.user.token;
       res.cookie('coderToken', token);
       res.send({ status: 200, message: 'Usuario registrado' });

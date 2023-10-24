@@ -4,6 +4,9 @@ const passport = require('passport');
 const initializePassport = require('../config/passport.config');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const cart = require('../dao/cart/cartRepository/cartRepository');
+const validateToken = require('../middlewares/validateToken');
+const cookieParser = require('cookie-parser');
 require('dotenv').config()
 
 module.exports = (app) => {
@@ -11,7 +14,7 @@ module.exports = (app) => {
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URL,
       mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-      ttl: 20
+      ttl: 24 * 60 * 60
     }),
     secret: process.env.MONGO_SECRET,
     resave: false,
@@ -22,6 +25,7 @@ module.exports = (app) => {
   app.use(passport.session());
   app.set('views', './src/views');
   app.use(express.static('public'));
+  app.use(cookieParser());
 
   app.engine('handlebars', exphbs.engine());
   app.set('view engine', 'handlebars');
@@ -51,7 +55,8 @@ module.exports = (app) => {
         const page = parseInt(req.query.page) || 1;
         const sort = req.query.sort === 'desc' ? -1 : 1;
         let products = await pm.getProducts();
-
+        products = products.map(product => ({ ...product, id: product._id }));
+        
         if (query) {
           products = products.filter(product => {
             return product.name.includes(query);
@@ -103,18 +108,13 @@ module.exports = (app) => {
     }
   });
 
-  app.get('/carts/:cid', async (req, res) => {
+  app.get('/carts', validateToken, async (req, res) => {
     try {
-      const cart = require('../dao/cart/cartService/cartService');
-      const cartId = req.params.cid;
-      const cartItems = await cart.getProducts(cartId)
+      const cartId = req.user.cart;
+      const cartItems = await cart.getCart(cartId)
 
-      if (cartItems) {
-        res.render('cart/cart', { cartItems });
-      } else {
-        res.status(404).json({ error: 'Producto no encontrado' });
-      }
-
+      if (cartItems) res.render('cart/cart', { cartItems });
+      else res.status(404).json({ error: 'Producto no encontrado' });
     } catch (error) {
       console.log(`[ERROR] -> ${error}`);
       res.status(500).json({ error: 'Error al obtener los detalles del carrito' });

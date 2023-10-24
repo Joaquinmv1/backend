@@ -13,11 +13,13 @@ const registerUser = async () => {
       headers: { "Content-type": "application/json; charset=UTF-8" },
       body: JSON.stringify(user),
     });
-    if (response.ok)
-      window.location.href = "/";
+    if (response.ok && response.status === 200) {
+      window.location.href = "/products";
+    }
+
+    console.log(response);
   } catch (error) {
     console.error("Error de registro");
-
   }
 }
 

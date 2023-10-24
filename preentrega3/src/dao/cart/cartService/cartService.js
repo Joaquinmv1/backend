@@ -33,7 +33,7 @@ class CartService {
   async getProducts(cartId) {
     try {
       const cart = await cartModel.findOne({ id: cartId }).populate("products.product").lean();
-
+      console.log(cart);
       if (!cart) {
         return [];
       }

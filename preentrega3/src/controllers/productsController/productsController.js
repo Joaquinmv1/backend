@@ -3,6 +3,7 @@ const productRepository = new ProductRepository();
 
 class ProductsController {
   async getProducts(req, res) {
+    
     try {
       const limit = parseInt(req.query.limit) || 10;
       const page = parseInt(req.query.page) || 1;
