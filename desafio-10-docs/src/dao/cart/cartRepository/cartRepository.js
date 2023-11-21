@@ -13,7 +13,9 @@ class CartRepository {
   async createCart() {
     try {
       const newCart = await CartModel.create({ products: [] });
+      console.log(newCart)
       const cartId = newCart._id;
+      console.log(cartId)
       return cartId;
     } catch (error) {
       throw error;
@@ -54,16 +56,13 @@ class CartRepository {
   async addProductToCart(cartId, productId, owner) {
     try {
       const findProduct = await productModel.find({ owner: { $in: [owner] } });
-      console.log(findProduct);
       const isOwnerProduct = findProduct.some(product => product._id.toString() === productId.id);
-      console.log(isOwnerProduct);
       if (isOwnerProduct) return 'Este producto le pertenece';
       const cart = await CartModel.findOne({ _id: cartId });
       if (!cart) throw new Error('Carrito no encontrado');
-
-      const existingProduct = cart.products.find((product) => product.product._id.toString() === productId.id);
-      if (existingProduct) existingProduct.quantity += 1
-      else cart.products.push({ product: productId, quantity: 1 })
+      const existingProduct = cart?.products.find((product) => product._id.toString() === productId.id);
+      if (existingProduct) existingProduct.quantity += 1;
+      else cart.products.push({ product: productId, quantity: 1 });
       await cart.save();
       return cart;
     } catch (error) {
